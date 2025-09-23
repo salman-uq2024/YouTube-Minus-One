@@ -1,5 +1,3 @@
-'use server';
-
 export function parseISO8601DurationToSeconds(isoDuration: string): number {
   const regex = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
   const match = isoDuration.match(regex);

@@ -1,0 +1,17 @@
+<svg width="132" height="48" viewBox="0 0 132 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ym1-fill" x1="24" y1="6" x2="108" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F24638"/>
+      <stop offset="1" stop-color="#B71A24"/>
+    </linearGradient>
+    <linearGradient id="ym1-highlight" x1="46" y1="10" x2="84" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="6" width="124" height="36" rx="18" fill="url(#ym1-fill)"/>
+  <path d="M36 22C36 20.8954 36.8954 20 38 20H48C49.1046 20 50 20.8954 50 22V26C50 27.1046 49.1046 28 48 28H38C36.8954 28 36 27.1046 36 26V22Z" fill="white" fill-opacity="0.76"/>
+  <path d="M58 15.5C58 14.1193 59.5306 13.2444 60.7809 13.9425L84.2287 27.0846C85.449 27.7651 85.449 29.5481 84.2287 30.2286L60.7809 43.3707C59.5306 44.0688 58 43.1939 58 41.8132V15.5Z" fill="white"/>
+  <path d="M82.4 24L72 29.5V18.5L82.4 24Z" fill="#C4202A"/>
+  <path d="M28 15.5C28 12.4624 30.4624 10 33.5 10H98.5C101.538 10 104 12.4624 104 15.5V32.5C104 35.5376 101.538 38 98.5 38H33.5C30.4624 38 28 35.5376 28 32.5V15.5Z" fill="url(#ym1-highlight)"/>
+</svg>

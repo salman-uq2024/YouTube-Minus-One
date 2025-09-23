@@ -13,13 +13,20 @@ interface SettingsDrawerProps {
   onChange: (value: SettingsState) => void;
 }
 
-const regions = [
-  { code: 'US', label: 'United States' },
-  { code: 'GB', label: 'United Kingdom' },
-  { code: 'CA', label: 'Canada' },
-  { code: 'DE', label: 'Germany' },
-  { code: 'FR', label: 'France' },
-  { code: 'JP', label: 'Japan' }
+interface RegionOption {
+  code: string;
+  label: string;
+}
+
+const fallbackRegions: RegionOption[] = [
+  { code: 'GLOBAL', label: 'Global (beta)' },
+  { code: 'US', label: 'United States (US)' },
+  { code: 'GB', label: 'United Kingdom (GB)' },
+  { code: 'CA', label: 'Canada (CA)' },
+  { code: 'DE', label: 'Germany (DE)' },
+  { code: 'FR', label: 'France (FR)' },
+  { code: 'JP', label: 'Japan (JP)' },
+  { code: 'AU', label: 'Australia (AU)' }
 ];
 
 const languages = [
@@ -33,10 +40,53 @@ const languages = [
 export function SettingsDrawer({ value, onChange }: SettingsDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const [regionOptions, setRegionOptions] = useState<RegionOption[]>(fallbackRegions);
 
   const update = (partial: Partial<SettingsState>) => {
-    onChange({ ...value, ...partial });
+    const next = { ...value, ...partial };
+    if (partial.region) {
+      next.region = partial.region.toUpperCase();
+    }
+    onChange(next);
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRegions = async () => {
+      try {
+        const res = await fetch('/api/regions');
+        if (!res.ok) {
+          return;
+        }
+        const data = (await res.json()) as { regions: Array<{ code: string; name: string }> };
+        if (cancelled) return;
+        const unique = new Map<string, RegionOption>();
+        unique.set('GLOBAL', { code: 'GLOBAL', label: 'Global (beta)' });
+        for (const region of data.regions ?? []) {
+          if (!region.code) continue;
+          unique.set(region.code.toUpperCase(), {
+            code: region.code.toUpperCase(),
+            label: `${region.name} (${region.code.toUpperCase()})`
+          });
+        }
+        setRegionOptions(Array.from(unique.values()));
+      } catch (error) {
+        console.error('Failed to fetch regions', error);
+      }
+    };
+
+    void loadRegions();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regionOptions.some((option) => option.code === value.region)) {
+      onChange({ region: 'US', language: value.language, minDurationMinutes: value.minDurationMinutes });
+    }
+  }, [regionOptions, onChange, value.language, value.minDurationMinutes, value.region]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -89,7 +139,7 @@ export function SettingsDrawer({ value, onChange }: SettingsDrawerProps) {
                   onChange={(event) => update({ region: event.target.value })}
                   className="rounded-lg border border-white/10 bg-background px-3 py-2"
                 >
-                  {regions.map((region) => (
+                  {regionOptions.map((region) => (
                     <option key={region.code} value={region.code}>
                       {region.label}
                     </option>

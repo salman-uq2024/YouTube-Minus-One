@@ -1,8 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { NormalizedVideo } from '@/lib/youtube';
 import { formatDistanceToNow } from 'date-fns';
 import classNames from 'classnames';
+import { StatsBadge, formatCompactNumber } from './StatsBadge';
+import { SafeImage } from './SafeImage';
 
 interface VideoCardProps {
   video: NormalizedVideo;
@@ -12,6 +13,9 @@ interface VideoCardProps {
 export function VideoCard({ video, compact = false }: VideoCardProps) {
   const thumbnail = video.thumbnails.high ?? video.thumbnails.medium ?? video.thumbnails.default;
   const publishedAgo = formatDistanceToNow(new Date(video.publishedAt), { addSuffix: true });
+  const viewsLabel = formatCompactNumber(video.viewCount);
+  const likesLabel = video.likeCount != null ? formatCompactNumber(video.likeCount) : '—';
+  const channelInitial = video.channelTitle.charAt(0).toUpperCase();
 
   return (
     <Link
@@ -25,7 +29,7 @@ export function VideoCard({ video, compact = false }: VideoCardProps) {
     >
       {thumbnail ? (
         <div className={classNames('relative w-full', { 'md:w-60': compact })}>
-          <Image
+          <SafeImage
             src={thumbnail.url}
             alt={video.title}
             width={thumbnail.width ?? 320}
@@ -39,11 +43,39 @@ export function VideoCard({ video, compact = false }: VideoCardProps) {
           </span>
         </div>
       ) : null}
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-base font-semibold text-white group-hover:text-accent">{video.title}</h3>
-        <p className="text-sm text-white/60">{video.channelTitle}</p>
-        <p className="line-clamp-2 text-sm text-white/50">{video.description}</p>
-        <p className="mt-auto text-xs text-white/40">{publishedAgo}</p>
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <h3 className="line-clamp-2 text-base font-semibold text-white group-hover:text-accent" title={video.title}>
+          {video.title}
+        </h3>
+        <div className="flex items-center gap-3">
+          <div className="relative h-9 w-9 overflow-hidden rounded-full bg-white/10">
+            {video.channelAvatarUrl ? (
+              <SafeImage
+                src={video.channelAvatarUrl}
+                alt={`${video.channelTitle} avatar`}
+                width={36}
+                height={36}
+                className="h-9 w-9 object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase text-white/70">
+                {channelInitial}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-white" title={video.channelTitle}>
+              {video.channelTitle}
+            </p>
+            <p className="text-xs text-white/40" title={`Published ${publishedAgo}`}>
+              {publishedAgo}
+            </p>
+          </div>
+        </div>
+        <div className="mt-auto flex flex-wrap items-center gap-2 text-xs text-white/60">
+          <StatsBadge label="Views" value={viewsLabel} icon="eye" />
+          <StatsBadge label="Likes" value={likesLabel} icon="heart" muted={likesLabel === '—'} />
+        </div>
       </div>
     </Link>
   );

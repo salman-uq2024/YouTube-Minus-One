@@ -6,22 +6,40 @@ interface PlayerProps {
   videoId: string;
 }
 
+interface YouTubePlayer {
+  cueVideoById: (videoId: string) => void;
+  pauseVideo?: () => void;
+  destroy?: () => void;
+}
+
+interface YouTubePlayerConstructor {
+  new (
+    element: HTMLElement,
+    config: {
+      videoId: string;
+      playerVars?: Record<string, number>;
+    }
+  ): YouTubePlayer;
+}
+
 declare global {
   interface Window {
-    YT: any;
-    onYouTubeIframeAPIReady: () => void;
+    YT?: {
+      Player: YouTubePlayerConstructor;
+    };
+    onYouTubeIframeAPIReady?: () => void;
   }
 }
 
 export function Player({ videoId }: PlayerProps) {
   const playerRef = useRef<HTMLDivElement>(null);
-  const ytPlayerRef = useRef<any>(null);
+  const ytPlayerRef = useRef<YouTubePlayer | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     function createPlayer() {
-      if (!playerRef.current || !window.YT || ytPlayerRef.current) {
+      if (!playerRef.current || !window.YT?.Player || ytPlayerRef.current) {
         return;
       }
       ytPlayerRef.current = new window.YT.Player(playerRef.current, {
@@ -35,7 +53,7 @@ export function Player({ videoId }: PlayerProps) {
       });
     }
 
-    if (window.YT && window.YT.Player) {
+    if (window.YT?.Player) {
       createPlayer();
     } else {
       const script = document.createElement('script');
